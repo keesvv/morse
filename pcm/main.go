@@ -30,7 +30,7 @@ func main() {
 		}
 
 		pos := time.Duration(
-			((float64(i) * *freq) / float64(w.SampleRate)) * float64(time.Millisecond),
+			(float64(i*len(f)) / float64(w.SampleRate)) * float64(time.Second),
 		)
 		fmt.Printf("cycle %d pos %v %v\n", i+1, pos, f)
 		// time.Sleep(time.Millisecond * 50)
