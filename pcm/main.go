@@ -5,10 +5,13 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"math/cmplx"
 	"os"
 	"time"
 
+	"github.com/mjibson/go-dsp/fft"
 	"github.com/mjibson/go-dsp/wav"
+	"github.com/mjibson/go-dsp/window"
 )
 
 func main() {
@@ -29,23 +32,24 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 		}
 
+		var samples []float64
+		for _, s := range f {
+			samples = append(samples, float64(s))
+		}
+
+		window.Apply(samples, window.Hann)
+
+		sfft := fft.FFTReal(samples)
+		var fSfft []float64
+		for _, sf := range sfft {
+			fSfft = append(fSfft, cmplx.Abs(sf))
+		}
+
 		pos := time.Duration(
-			(float64(i*len(f)) / float64(w.SampleRate)) * float64(time.Second),
+			(float64(i*len(samples)) / float64(w.SampleRate)) * float64(time.Second),
 		)
-		fmt.Printf("cycle %d pos %v %v\n", i+1, pos, f)
+
+		fmt.Printf("cycle %d pos %v samples %v fft %v\n", i+1, pos, samples, fSfft)
 		// time.Sleep(time.Millisecond * 50)
-
-		// var samples []float64
-		// for _, s := range f {
-		// 	samples = append(samples, float64(s))
-		// 	fmt.Println(s)
-		// }
-
-		// window.Apply(samples, window.Hann)
-
-		// sfft := fft.FFTReal(samples)
-		// for _, f := range sfft {
-		// 	fmt.Println(cmplx.Abs(f))
-		// }
 	}
 }
